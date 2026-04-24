@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify email • TripFit</title>
+    <link rel="icon" href="logo/TripFit_logo2-removebg-preview.png" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        mint: '#2dd4bf',
+                        juniper: '#0f373b',
+                        pearl: '#f8f9fa',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-xl p-10 border border-gray-100">
+
+        <div class="text-center mb-8">
+            <div class="w-16 h-16 bg-mint/10 text-mint rounded-full flex items-center justify-center mx-auto mb-6 text-2xl">
+                <i class="fas fa-envelope-open-text"></i>
+            </div>
+            <h2 id="verify-title" class="text-3xl font-extrabold text-juniper tracking-tight">Verify your email</h2>
+            <p id="verify-subtitle" class="text-gray-500 mt-3 text-sm leading-relaxed">Enter your email to receive a 6-digit verification code.</p>
+        </div>
+
+        <form id="verify-form" class="space-y-8">
+            <div>
+                <label for="reset-email" class="block text-sm font-semibold text-juniper mb-2">Email Address</label>
+                <input id="reset-email" type="email" class="w-full h-12 px-4 text-base text-juniper border-2 border-gray-200 rounded-xl focus:border-mint focus:ring-0 outline-none transition-colors" placeholder="name@tripfit.com" required>
+                <button id="send-code-btn" type="button" class="w-full mt-3 py-3 bg-juniper hover:bg-gray-800 text-white font-bold rounded-xl transition-transform active:scale-95">Send Code</button>
+            </div>
+
+            <div class="flex justify-between gap-2">
+                <input type="text" inputmode="numeric" maxlength="1" class="otp-digit w-12 h-14 text-center text-2xl font-extrabold text-juniper border-2 border-gray-200 rounded-xl focus:border-mint focus:ring-0 outline-none transition-colors" autofocus>
+                <input type="text" inputmode="numeric" maxlength="1" class="otp-digit w-12 h-14 text-center text-2xl font-extrabold text-juniper border-2 border-gray-200 rounded-xl focus:border-mint focus:ring-0 outline-none transition-colors">
+                <input type="text" inputmode="numeric" maxlength="1" class="otp-digit w-12 h-14 text-center text-2xl font-extrabold text-juniper border-2 border-gray-200 rounded-xl focus:border-mint focus:ring-0 outline-none transition-colors">
+                <input type="text" inputmode="numeric" maxlength="1" class="otp-digit w-12 h-14 text-center text-2xl font-extrabold text-juniper border-2 border-gray-200 rounded-xl focus:border-mint focus:ring-0 outline-none transition-colors">
+                <input type="text" inputmode="numeric" maxlength="1" class="otp-digit w-12 h-14 text-center text-2xl font-extrabold text-juniper border-2 border-gray-200 rounded-xl focus:border-mint focus:ring-0 outline-none transition-colors">
+                <input type="text" inputmode="numeric" maxlength="1" class="otp-digit w-12 h-14 text-center text-2xl font-extrabold text-juniper border-2 border-gray-200 rounded-xl focus:border-mint focus:ring-0 outline-none transition-colors">
+            </div>
+
+            <p id="verify-msg" class="text-sm text-gray-500 text-center">Enter the 6-digit code you received.</p>
+
+            <button type="submit" class="w-full py-4 bg-juniper hover:bg-gray-800 text-white font-bold text-lg rounded-xl shadow-lg transition-transform active:scale-95">
+                Verify Code
+            </button>
+        </form>
+
+        <div class="mt-8 text-center">
+            <p class="text-sm text-gray-500">Didn't receive the code?</p>
+            <button id="resend-btn" class="text-mint font-bold hover:text-juniper transition-colors mt-1">Resend OTP</button>
+        </div>
+
+        <div class="mt-6 text-center">
+            <a href="index.html" class="text-sm text-gray-400 hover:text-juniper transition-colors flex items-center justify-center gap-2">
+                <i class="fas fa-arrow-left"></i> Back to login
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const otpMode = new URLSearchParams(window.location.search).get('mode') === 'signup' ? 'signup' : 'reset';
+
+
+        function safeParseJSON(value, fallback) {
+            try {
+                return value ? JSON.parse(value) : fallback;
+            } catch {
+                return fallback;
+            }
+        }
+
+        function getStoredUsers() {
+            const tripfitUsers = safeParseJSON(localStorage.getItem('tripfitUsers'), null);
+            if (Array.isArray(tripfitUsers)) {
+                return tripfitUsers;
+            }
+
+            const hiksterUsers = safeParseJSON(localStorage.getItem('hiksterUsers'), []);
+            return Array.isArray(hiksterUsers) ? hiksterUsers : [];
+        }
+
+        function normalizeEmail(email) {
+            return String(email || '').trim().toLowerCase();
+        }
+
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+        }
+
+        function isDisposableDomain(email) {
+            const domain = email.split('@')[1] || '';
+            const blocked = [
+                'mailinator.com', 'tempmail.com', '10minutemail.com', 'guerrillamail.com',
+                'yopmail.com', 'sharklasers.com', 'trashmail.com', 'getnada.com'
+            ];
+            return blocked.includes(domain);
+        }
+
+        function maskEmail(email) {
+            const [name, domain] = email.split('@');
+            if (!name || !domain) return email;
+            if (name.length <= 2) return `${name[0] || ''}*@${domain}`;
+            return `${name.slice(0, 2)}${'*'.repeat(Math.max(1, name.length - 2))}@${domain}`;
+        }
+
+        function getOtpStore() {
+            return safeParseJSON(localStorage.getItem('tripfitResetOtp'), {});
+        }
+
+        function setOtpStore(payload) {
+            localStorage.setItem('tripfitResetOtp', JSON.stringify(payload));
+        }
+
+        function setMessage(text, isError = false) {
+            const message = document.getElementById('verify-msg');
+            message.textContent = text;
+            message.classList.toggle('text-red-500', isError);
+            message.classList.toggle('text-gray-500', !isError);
+        }
+
+        function collectOtp() {
+            return Array.from(document.querySelectorAll('.otp-digit')).map((input) => input.value).join('');
+        }
+
+        function clearOtpInputs() {
+            document.querySelectorAll('.otp-digit').forEach((input) => {
+                input.value = '';
+            });
+            const first = document.querySelector('.otp-digit');
+            if (first) first.focus();
+        }
+
+        function setupOtpInputs() {
+            const inputs = Array.from(document.querySelectorAll('.otp-digit'));
+
+            inputs.forEach((input, index) => {
+                input.addEventListener('input', () => {
+                    input.value = input.value.replace(/\D/g, '').slice(0, 1);
+                    if (input.value && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                });
+
+                input.addEventListener('keydown', (event) => {
+                    if (event.key === 'Backspace' && !input.value && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                });
+            });
+        }
+
+        let resendCooldownTimer = null;
+        function startResendCooldown(seconds) {
+            const resendBtn = document.getElementById('resend-btn');
+            let remaining = seconds;
+
+            resendBtn.disabled = true;
+            resendBtn.classList.add('opacity-60', 'cursor-not-allowed');
+            resendBtn.textContent = `Resend OTP in ${remaining}s`;
+
+            if (resendCooldownTimer) {
+                clearInterval(resendCooldownTimer);
+            }
+
+            resendCooldownTimer = setInterval(() => {
+                remaining -= 1;
+                if (remaining <= 0) {
+                    clearInterval(resendCooldownTimer);
+                    resendCooldownTimer = null;
+                    resendBtn.disabled = false;
+                    resendBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+                    resendBtn.textContent = 'Resend OTP';
+                    return;
+                }
+                resendBtn.textContent = `Resend OTP in ${remaining}s`;
+            }, 1000);
+        }
+
+        async function sendOtpEmail(email, code) {
+            console.log('Frontend-only mode: OTP generated locally.');
+            console.log('Target Email:', email);
+            console.log('OTP Code:', code);
+            return true;
+        }
+
+        async function sendCodeForEmail(email, { showAlert = true } = {}) {
+            const normalizedEmail = normalizeEmail(email);
+
+            if (!isValidEmail(normalizedEmail)) {
+                setMessage('Please enter a valid email address.', true);
+                return false;
+            }
+
+            if (isDisposableDomain(normalizedEmail)) {
+                setMessage('Disposable email addresses are not allowed.', true);
+                return false;
+            }
+
+            const users = getStoredUsers();
+            const userExists = users.some((user) => normalizeEmail(user.email) === normalizedEmail);
+
+            if (otpMode === 'reset' && !userExists) {
+                setMessage('No account found for this email. Please sign up first.', true);
+                return false;
+            }
+
+            if (otpMode === 'signup') {
+                const pendingSignup = safeParseJSON(localStorage.getItem('tripfitPendingSignup'), null);
+                if (!pendingSignup || normalizeEmail(pendingSignup.email) !== normalizedEmail) {
+                    setMessage('Signup session expired. Please sign up again.', true);
+                    return false;
+                }
+                if (userExists) {
+                    setMessage('This email is already registered. Please login instead.', true);
+                    return false;
+                }
+            }
+
+            const code = String(Math.floor(100000 + Math.random() * 900000));
+            const expiresAt = Date.now() + (10 * 60 * 1000);
+
+            const delivered = await sendOtpEmail(normalizedEmail, code);
+            if (!delivered) {
+                return false;
+            }
+
+            setOtpStore({ email: normalizedEmail, code, expiresAt, mode: otpMode });
+            clearOtpInputs();
+            startResendCooldown(30);
+
+            const masked = maskEmail(normalizedEmail);
+            document.getElementById('verify-subtitle').textContent = `Frontend-only demo mode. Your 6-digit verification code is ${code}.`;
+            setMessage(`Code generated locally for ${masked}. It expires in 10 minutes.`);
+
+            return true;
+        }
+
+        function completeSignupForEmail(email) {
+            const pendingSignup = safeParseJSON(localStorage.getItem('tripfitPendingSignup'), null);
+            if (!pendingSignup || normalizeEmail(pendingSignup.email) !== normalizeEmail(email)) {
+                return false;
+            }
+
+            const users = getStoredUsers();
+            const exists = users.some((user) => normalizeEmail(user.email) === normalizeEmail(email));
+            if (exists) {
+                return false;
+            }
+
+            users.push({
+                name: pendingSignup.name,
+                email: normalizeEmail(pendingSignup.email),
+                password: pendingSignup.password
+            });
+
+            localStorage.setItem('tripfitUsers', JSON.stringify(users));
+            localStorage.setItem('hiksterUsers', JSON.stringify(users));
+
+            const activeUser = {
+                name: pendingSignup.name,
+                email: normalizeEmail(pendingSignup.email)
+            };
+            localStorage.setItem('tripfitUser', JSON.stringify(activeUser));
+            localStorage.setItem('hiksterUser', JSON.stringify(activeUser));
+            localStorage.removeItem('tripfitPendingSignup');
+            return true;
+        }
+
+        async function handleSendCode() {
+            const email = document.getElementById('reset-email').value;
+            await sendCodeForEmail(email);
+        }
+
+        function handleVerify(event) {
+            event.preventDefault();
+
+            const email = normalizeEmail(document.getElementById('reset-email').value);
+            const enteredCode = collectOtp();
+            const otpStore = getOtpStore();
+
+            if (!isValidEmail(email)) {
+                setMessage('Please enter a valid email address.', true);
+                return;
+            }
+
+            if (!/^\d{6}$/.test(enteredCode)) {
+                setMessage('Please enter the full 6-digit verification code.', true);
+                return;
+            }
+
+            if (!otpStore.email || !otpStore.code || !otpStore.expiresAt || !otpStore.mode) {
+                setMessage('No active code found. Please send a new code.', true);
+                return;
+            }
+
+            if (otpStore.mode !== otpMode) {
+                setMessage('Verification flow mismatch. Please request a new code.', true);
+                return;
+            }
+
+            if (normalizeEmail(otpStore.email) !== email) {
+                setMessage('This code was sent to a different email. Request a new code.', true);
+                return;
+            }
+
+            if (Date.now() > Number(otpStore.expiresAt)) {
+                setMessage('This code has expired. Please resend OTP.', true);
+                return;
+            }
+
+            if (String(otpStore.code) !== enteredCode) {
+                setMessage('Incorrect code. Please try again.', true);
+                return;
+            }
+
+            localStorage.removeItem('tripfitResetOtp');
+
+            if (otpMode === 'signup') {
+                const ok = completeSignupForEmail(email);
+                if (!ok) {
+                    setMessage('Could not complete signup. Please sign up again.', true);
+                    return;
+                }
+                window.location.href = 'home.html';
+                return;
+            }
+
+            localStorage.setItem('tripfitResetSession', JSON.stringify({
+                email,
+                verifiedAt: Date.now(),
+                expiresAt: Date.now() + (10 * 60 * 1000)
+            }));
+            window.location.href = `reset-password.html?email=${encodeURIComponent(email)}`;
+        }
+
+        document.getElementById('send-code-btn').addEventListener('click', handleSendCode);
+        document.getElementById('verify-form').addEventListener('submit', handleVerify);
+        document.getElementById('resend-btn').addEventListener('click', handleSendCode);
+
+        setupOtpInputs();
+
+        const params = new URLSearchParams(window.location.search);
+        const prefillEmail = normalizeEmail(params.get('email') || '');
+        const emailInput = document.getElementById('reset-email');
+
+        if (otpMode === 'signup') {
+            document.getElementById('verify-title').textContent = 'Verify your signup email';
+            document.getElementById('verify-subtitle').textContent = 'We need to verify your email before creating your account.';
+        } else {
+            document.getElementById('verify-title').textContent = 'Reset password';
+            document.getElementById('verify-subtitle').textContent = 'Enter your registered email to receive a 6-digit verification code.';
+        }
+
+        if (prefillEmail) {
+            emailInput.value = prefillEmail;
+            sendCodeForEmail(prefillEmail, { showAlert: false });
+        }
+    </script>
+
+</body>
+</html>
+

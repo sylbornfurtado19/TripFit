@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Destination Details • TripFit</title>
+
+    <link rel="icon" href="logo/TripFit_logo2-removebg-preview.png" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        mint: '#2dd4bf',
+                        teal: '#14b8a6',
+                        juniper: '#0f373b',
+                        pearl: '#f8f9fa'
+                    }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-pearl dark:bg-gray-900 min-h-screen flex flex-col text-gray-800 dark:text-gray-100">
+    <header id="tripfit-navbar"></header>
+
+    <section id="detail-hero" class="relative py-20 px-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+        <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-10 items-center">
+            <div>
+                <p id="detail-region" class="inline-block px-3 py-1 bg-mint/15 text-mint text-xs font-bold rounded-full uppercase tracking-wider mb-4">Destination</p>
+                <h1 id="detail-name" class="text-4xl md:text-5xl font-extrabold text-juniper dark:text-white mb-4">Loading destination...</h1>
+                <p id="detail-desc" class="text-gray-600 dark:text-gray-400 text-lg leading-relaxed mb-8">Please wait while we fetch details.</p>
+
+                <div class="flex flex-wrap gap-3">
+                    <a id="book-now-link" href="book.html" class="px-6 py-3 bg-mint text-juniper rounded-full font-bold hover:bg-teal transition">Book this trip</a>
+                    <a href="all-destinations.html" class="px-6 py-3 border border-juniper dark:border-gray-400 rounded-full font-bold text-juniper dark:text-gray-100 hover:bg-juniper hover:text-white dark:hover:bg-gray-700 transition">Back to destinations</a>
+                </div>
+            </div>
+
+            <div class="rounded-3xl overflow-hidden shadow-xl border border-gray-200 dark:border-gray-700">
+                <img id="detail-image" src="images/swiss.png" alt="Destination image" class="w-full h-[380px] object-cover">
+            </div>
+        </div>
+    </section>
+
+    <section class="py-14 px-6 flex-1">
+        <div class="max-w-7xl mx-auto grid lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-3xl p-8 border border-gray-100 dark:border-gray-700 shadow-sm">
+                <h2 class="text-2xl font-bold text-juniper dark:text-white mb-6">Trip Highlights</h2>
+
+                <div class="grid sm:grid-cols-2 gap-4 text-sm">
+                    <div class="p-4 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700">
+                        <p class="text-gray-500 dark:text-gray-400">Location</p>
+                        <p id="detail-location" class="font-bold text-juniper dark:text-white mt-1">-</p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700">
+                        <p class="text-gray-500 dark:text-gray-400">Trip Vibe</p>
+                        <p id="detail-trip" class="font-bold text-juniper dark:text-white mt-1">-</p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700">
+                        <p class="text-gray-500 dark:text-gray-400">Climate</p>
+                        <p id="detail-climate" class="font-bold text-juniper dark:text-white mt-1">-</p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700">
+                        <p class="text-gray-500 dark:text-gray-400">Top Activities</p>
+                        <p id="detail-activities" class="font-bold text-juniper dark:text-white mt-1">-</p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700">
+                        <p class="text-gray-500 dark:text-gray-400">Budget Level</p>
+                        <p id="detail-budget" class="font-bold text-juniper dark:text-white mt-1">-</p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700">
+                        <p class="text-gray-500 dark:text-gray-400">Ideal For</p>
+                        <p id="detail-companions" class="font-bold text-juniper dark:text-white mt-1">-</p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700 sm:col-span-2">
+                        <p class="text-gray-500 dark:text-gray-400">Best Time to Visit</p>
+                        <p id="detail-best-time" class="font-bold text-juniper dark:text-white mt-1">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
+                <h3 class="text-xl font-bold text-juniper dark:text-white mb-4">Season Guide</h3>
+                <div id="season-grid" class="grid grid-cols-3 gap-2 text-xs"></div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-juniper text-center py-6 text-gray-400 border-t border-teal/20">
+        &copy; 2026 TripFit â€¢ Fueling wanderlust for dreamers and explorers worldwide.
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="navbar.js"></script>
+    <script>
+        function titleCase(value) {
+            if (!value) return '-';
+            return value.charAt(0).toUpperCase() + value.slice(1);
+        }
+
+        function titleList(values) {
+            if (!Array.isArray(values) || values.length === 0) return '-';
+            return values.map(titleCase).join(', ');
+        }
+
+        function getSeasonClass(status) {
+            if (status === 'peak') return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300';
+            if (status === 'monsoon') return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300';
+            return 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-300';
+        }
+
+        function safeParseJSON(value, fallback) {
+            try {
+                return value ? JSON.parse(value) : fallback;
+            } catch {
+                return fallback;
+            }
+        }
+
+        function getSeasonByClimate(primaryClimate) {
+            const seasonMaps = {
+                beach: {
+                    Jan: 'peak', Feb: 'peak', Mar: 'peak', Apr: 'peak',
+                    May: 'avoid', Jun: 'monsoon', Jul: 'monsoon', Aug: 'monsoon',
+                    Sep: 'monsoon', Oct: 'avoid', Nov: 'peak', Dec: 'peak'
+                },
+                tropical: {
+                    Jan: 'peak', Feb: 'peak', Mar: 'peak', Apr: 'peak',
+                    May: 'avoid', Jun: 'monsoon', Jul: 'monsoon', Aug: 'monsoon',
+                    Sep: 'monsoon', Oct: 'avoid', Nov: 'peak', Dec: 'peak'
+                },
+                mountains: {
+                    Jan: 'avoid', Feb: 'avoid', Mar: 'peak', Apr: 'peak',
+                    May: 'peak', Jun: 'peak', Jul: 'monsoon', Aug: 'monsoon',
+                    Sep: 'peak', Oct: 'peak', Nov: 'peak', Dec: 'avoid'
+                },
+                city: {
+                    Jan: 'peak', Feb: 'peak', Mar: 'peak', Apr: 'peak',
+                    May: 'peak', Jun: 'avoid', Jul: 'avoid', Aug: 'avoid',
+                    Sep: 'peak', Oct: 'peak', Nov: 'peak', Dec: 'peak'
+                }
+            };
+
+            return seasonMaps[primaryClimate] || seasonMaps.city;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const destinationId = params.get('id');
+            const loggedInUser = safeParseJSON(localStorage.getItem('tripfitUser'), null) || safeParseJSON(localStorage.getItem('hiksterUser'), null);
+
+            let destination = destinations.find((d) => d.name === destinationId);
+
+            if (!destination && destinationId) {
+                destination = destinations.find((d) => d.name.toLowerCase() === destinationId.toLowerCase());
+            }
+
+            if (!destination) {
+                document.getElementById('detail-name').textContent = 'Destination not found';
+                document.getElementById('detail-desc').textContent = 'This destination does not exist or the link is invalid.';
+                document.getElementById('book-now-link').setAttribute('href', 'all-destinations.html');
+                document.getElementById('book-now-link').textContent = 'Browse Destinations';
+                return;
+            }
+
+            document.title = `${destination.name} â€¢ TripFit`;
+            document.getElementById('detail-region').textContent = destination.region;
+            document.getElementById('detail-name').textContent = destination.name;
+            document.getElementById('detail-desc').textContent = destination.desc;
+            document.getElementById('detail-image').src = destination.image;
+            document.getElementById('detail-image').alt = destination.name;
+            document.getElementById('detail-location').textContent = destination.name;
+            document.getElementById('detail-trip').textContent = titleList(destination.trip);
+            document.getElementById('detail-climate').textContent = titleList(destination.climate);
+            document.getElementById('detail-activities').textContent = titleList(destination.activities);
+            document.getElementById('detail-budget').textContent = titleList(destination.budget);
+            document.getElementById('detail-companions').textContent = titleList(destination.companions);
+
+            const primaryClimate = Array.isArray(destination.climate) && destination.climate.length > 0 ? destination.climate[0] : 'city';
+            const season = getSeasonByClimate(primaryClimate);
+            const bestMonths = Object.keys(season).filter((month) => season[month] === 'peak');
+            document.getElementById('detail-best-time').textContent = bestMonths.length ? `${bestMonths.slice(0, 4).join(', ')} and beyond` : 'Year-round';
+
+            const bookingUrl = `book.html?destination=${encodeURIComponent(destination.name)}`;
+            const loginRedirectUrl = `index.html?redirect=${encodeURIComponent(bookingUrl)}`;
+            document.getElementById('book-now-link').setAttribute('href', loggedInUser ? bookingUrl : loginRedirectUrl);
+
+            const seasonGrid = document.getElementById('season-grid');
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            seasonGrid.innerHTML = months.map((month) => {
+                const status = season[month] || 'avoid';
+                const label = status === 'peak' ? 'Peak' : status === 'monsoon' ? 'Monsoon' : 'Avoid';
+                return `<div class="rounded-lg px-2 py-2 text-center ${getSeasonClass(status)}"><p class="font-bold">${month}</p><p>${label}</p></div>`;
+            }).join('');
+        });
+    </script>
+</body>
+</html>
+
